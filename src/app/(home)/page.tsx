@@ -67,11 +67,20 @@ export default function Home() {
       <section className="py-10 text-center">
         <h3 className="text-lg font-medium">Our Lenders</h3>
         <p className="text-xl font-semibold mt-2 mb-6">Get the best Deal from 60+ Banks & Lenders</p>
-        <div className="flex flex-wrap justify-center gap-6 px-8">
-          <img src="logo1.png" className="h-6" />
-          <img src="logo2.png" className="h-6" />
-          <img src="logo3.png" className="h-6" />
-          {/* <!-- Add more logos as needed --> */}
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-6 pt-4">
+
+          <Image src="/images/brand-logo.png" alt="Bank A" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank B" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          <Image src="/images/brand-logo.png" alt="Bank C" width={140} height={100} className="h-10" />
+          </div>
+
         </div>
       </section>
 
