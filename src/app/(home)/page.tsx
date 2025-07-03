@@ -1,23 +1,10 @@
 import Image from "next/image";
-
+import React from "react";
 export default function Home() {
 
   return (
-    <div className=" text-gray-900 font-sans">
-      {/* <!-- Navbar --> */}
-      <nav className="bg-gray-100 shadow">
-        <div className="container mx-auto flex justify-around items-center px-6 py-4">
-          <div className="text-xl font-bold">GiveCredit</div>
-          <div className="flex space-x-8">
-            <a href="#" className="border-b-2 border-green-400 pb-1">Home</a>
-            <a href="#" className="hover:text-green-500">Loan</a>
-            <a href="#" className="hover:text-green-500">Calculator</a>
-            <a href="#" className="hover:text-green-500">Resources</a>
-            <a href="#" className="hover:text-green-500">About</a>
-          </div>
-          <button className="bg-black text-white px-8 font-medium  py-2 ">Login</button>
-        </div>
-      </nav>
+    <div className="">
+      {/* <Navbar />   */}
       <div className="">
         {/* <!-- Hero Section --> */}
         <section className="flex flex-col md:flex-row justify-between items-center px-28 pt-6 bg-gray-100 ">
@@ -139,7 +126,7 @@ export default function Home() {
       {/* <!-- Why Us Section --> */}
       <section className="flex flex-col md:flex-row justify-between items-center px-8 py-16 bg-gray-100 gap-8">
         <div className="md:w-1/2">
-          <img src="meeting.jpg" alt="Why Us" className="rounded-lg shadow-md" />
+          <Image src="/images/login-banner.png" alt="Why Us" width={500} height={300} className="rounded-lg shadow-md" />
         </div>
         <div className="md:w-1/2 space-y-4">
           <h3 className="text-gray-500">Why Us?</h3>
@@ -158,17 +145,17 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-8">Happy Clients are our Products.</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
           <div className="bg-white p-4 shadow rounded">
-            <p className="text-sm text-gray-600">"Lorem ipsum dolor sit amet..."</p>
+            <p className="text-sm text-gray-600">&quot;Lorem ipsum dolor sit amet...&quot;</p>
             <p className="mt-2 font-bold">Kaung Khant</p>
             <p className="text-sm text-gray-500">Head of Product</p>
           </div>
           <div className="bg-white p-4 shadow rounded">
-            <p className="text-sm text-gray-600">"Lorem ipsum dolor sit amet..."</p>
+            <p className="text-sm text-gray-600">&quot;Lorem ipsum dolor sit amet...&quot;</p>
             <p className="mt-2 font-bold">Kaung Khant</p>
             <p className="text-sm text-gray-500">Head of Product</p>
           </div>
           <div className="bg-white p-4 shadow rounded">
-            <p className="text-sm text-gray-600">"Lorem ipsum dolor sit amet..."</p>
+            <p className="text-sm text-gray-600">&quot;Lorem ipsum dolor sit amet...&quot;</p>
             <p className="mt-2 font-bold">Kaung Khant</p>
             <p className="text-sm text-gray-500">Head of Product</p>
           </div>
