@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import React from 'react'
 
 export default function Navbar() {
@@ -6,13 +7,16 @@ export default function Navbar() {
         <div className="container mx-auto flex justify-around items-center px-6 py-4">
           <div className="text-xl font-bold">GiveCredit</div>
           <div className="flex space-x-8">
-            <a href="#" className="border-b-2 border-green-400 pb-1">Home</a>
-            <a href="#" className="hover:text-green-500">Loan</a>
-            <a href="#" className="hover:text-green-500">Calculator</a>
-            <a href="#" className="hover:text-green-500">Resources</a>
-            <a href="#" className="hover:text-green-500">About</a>
+            <Link href="/" className="border-b-2 border-green-400 pb-1">Home</Link>
+            <Link href="/loan" className="hover:text-green-500">Loan</Link>
+            <Link href="/calculator" className="hover:text-green-500">Calculator</Link>
+            <Link href="/resources" className="hover:text-green-500">Resources</Link>
+            <Link href="/about" className="hover:text-green-500">About</Link>
+          
           </div>
-          <button className="bg-black text-white px-8 font-medium  py-2 ">Login</button>
+          <Link href="/signin">
+            <button className="bg-black text-white px-8 font-medium py-2">Login</button>
+          </Link>
         </div>
       </nav>
   )
