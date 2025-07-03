@@ -15,7 +15,7 @@ export default function Home() {
             <a href="#" className="hover:text-green-500">Resources</a>
             <a href="#" className="hover:text-green-500">About</a>
           </div>
-          <button className="bg-black text-white px-4 py-2 rounded">Login</button>
+          <button className="bg-black text-white px-8 font-medium  py-2 ">Login</button>
         </div>
       </nav>
       <div className="">
@@ -29,10 +29,10 @@ export default function Home() {
               Givecredit allows you to structure your home loan to get best deal for you with the expert advice of dedicated mortgage broker
             </p>
             <div className="flex space-x-4">
-              <button className="bg-green-300 px-6 py-2 rounded hover:bg-green-400">I want to buy home</button>
-              <button className="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">I want to refinance</button>
+              <button className="bg-[#B2FCE4] px-6 py-4  hover:bg-green-400">I want to buy home</button>
+              <button className="bg-black text-white px-6 py-4  hover:bg-gray-800">I want to refinance</button>
             </div>
-            <p className="text-sm">Calculate, save and come later</p>
+            <p className="text-gray-700">Calculate, save and come later</p>
           </div>
           <div className="relative md:w-1/2 flex justify-center mt-8 md:mt-0">
             <div className="absolute w-80 h-80 bg-[#a9dece] rounded-full top-10 right-8"></div>
@@ -42,17 +42,18 @@ export default function Home() {
 
         {/* <!-- Services Section --> */}
         <div className="px-28 -mt-10 z-20 relative">
-          <section className="bg-black text-white py-6">
+          <section className="bg-black text-white py-8 px-8">
             <div className="max-w-6xl mx-auto flex justify-between items-center px-4">
               <div>
-                <h3 className="font-bold">Type of Service</h3>
-                <p className="text-sm text-gray-400">Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+                <h3 className="font-bold mb-2">Type of Service</h3>
+                <p className="text-sm ">Lorem ipsum dolor sit amet,</p>
+                <p className="text-sm ">consectetur adipiscing</p>
               </div>
-              <div className="flex space-x-6 text-sm items-center">
-                <div className="flex items-center space-x-2"><span>🏠</span><span>Home</span></div>
-                <div className="flex items-center space-x-2"><span>🚗</span><span>Car</span></div>
-                <div className="flex items-center space-x-2"><span>💲</span><span>SMSF</span></div>
-                <div className="flex items-center space-x-2"><span>✅</span><span>Personal</span></div>
+              <div className="flex space-x-10 text-sm items-center">
+                <div className="flex items-center space-x-2"><Image src="/images/home-hashtag.png" alt="Home" width={24} height={24} /><span className="text-lg">Home</span></div>
+                <div className="flex items-center space-x-2"><Image src="/images/home-hashtag.png" alt="Car" width={24} height={24} /><span className="text-lg">Car</span></div>
+                <div className="flex items-center space-x-2"><Image src="/images/home-hashtag.png" alt="SMSF" width={24} height={24} /><span className="text-lg">SMSF</span></div>
+                <div className="flex items-center space-x-2"><Image src="/images/home-hashtag.png" alt="Personal" width={24} height={24} /><span className="text-lg">Personal</span></div>
               </div>
             </div>
           </section>
