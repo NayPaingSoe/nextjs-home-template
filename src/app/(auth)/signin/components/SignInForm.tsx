@@ -67,6 +67,7 @@ export default function SignInForm() {
             name: user.name,
             email: user.email,
             status: user.status,
+            profile_status: user?.profile_status,
           })
         );
 

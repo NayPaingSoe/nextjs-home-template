@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import {
   InputOTP,
@@ -10,7 +10,6 @@ import {
 import http from "@/redux/http";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/redux/hook";
 import { setToken, setUserData } from "@/redux/features/AuthSlice";
 import { Button } from "@/components/ui/button";
@@ -175,8 +174,48 @@ function VerifyCode({ email }: { email: string }) {
   const [value, setValue] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
   const dispatch = useAppDispatch();
+  const [timer, setTimer] = useState(60);
+  const [resendDisabled, setResendDisabled] = useState(true);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (resendDisabled) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => {
+          if (prevTimer === 1) {
+            clearInterval(interval as NodeJS.Timeout);
+            setResendDisabled(false);
+          }
+          return prevTimer - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval as NodeJS.Timeout);
+  }, [resendDisabled]);
+
+  const resendCode = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      const response = await http.resendcode(`/resend-code/${email}`, formData);
+      if (response.status === 200) {
+        toast.success("Code resent to your email!", {
+          description: "Please check your email!",
+        });
+        setTimer(60);
+        setResendDisabled(true);
+      }
+    } catch (err) {
+      console.error("Resend code error:", err);
+      toast.error("Failed to resend code.", {
+        description: "Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const registerHandler = async () => {
     setLoading(true);
     try {
@@ -213,8 +252,10 @@ function VerifyCode({ email }: { email: string }) {
         // router.push(redirectUrl);
       }
     } catch (err) {
-      console.error("Register error:", err);
-      toast.error(err.response.data.message);
+      if (err instanceof Error) {
+        console.error("Register error:", err);
+        toast.error(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -248,9 +289,22 @@ function VerifyCode({ email }: { email: string }) {
       </div>
 
       <p className="text-center text-sm text-red-500 my-2">{error}</p>
+      <div className="text-center text-sm text-gray-500 my-2">
+        {resendDisabled ? (
+          <p>Resend code in {timer}s</p>
+        ) : (
+          <Button
+            onClick={resendCode}
+            disabled={loading}
+            className="text-black"
+            variant="link"
+          >
+            Resend Code
+          </Button>
+        )}
+      </div>
       <Button
         disabled={loading}
-        type="submit"
         onClick={registerHandler}
         className="mt-6 w-full flex justify-center py-6 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >

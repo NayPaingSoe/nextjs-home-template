@@ -135,6 +135,18 @@ export const verifycode = async (uri: string, data: FormData) => {
   }
 };
 
+export const resendcode = async (uri: string, data: FormData) => {
+  try {
+    const response: AxiosResponse = await http.post(uri, data);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 422) {
+      return error.response;
+    }
+    throw error;
+  }
+};
+
 export const fetchDataWithToken = async (uri: string) => {
   try {
     await ensureToken();
@@ -186,6 +198,7 @@ const api = {
   login,
   register,
   verifycode,
+  resendcode,
   fetchDataWithToken,
   postDataWithToken,
 };
