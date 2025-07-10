@@ -59,26 +59,22 @@ export default function SignUpForm() {
             setError(key, { type: "manual", message });
           }
         });
-        toast.error("Register failed.", {
-          description: apiErrors.password
+        toast.error(
+          apiErrors.password
             ? apiErrors.password[0]
             : apiErrors.email
             ? apiErrors.email[0]
-            : "Please check your credentials and try again.",
-        });
+            : "Please check your credentials and try again."
+        );
       } else if (response.status === 200) {
         const { user } = response.data;
         console.log("user data:", user);
-        toast.success("Code sent to your email!", {
-          description: "Please check your email!",
-        });
+        toast.success("Please check your email to verify your account!");
         setStep(2);
       }
     } catch (err) {
       console.error("Register error:", err);
-      toast.error("Send code fail!.", {
-        description: "Please check your internet connetion!",
-      });
+      toast.error("Please check your internet connetion!");
     } finally {
       setLoading(false);
     }
