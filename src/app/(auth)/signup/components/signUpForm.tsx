@@ -13,7 +13,8 @@ import { toast } from "sonner";
 import { useAppDispatch } from "@/redux/hook";
 import { setToken, setUserData } from "@/redux/features/AuthSlice";
 import { Button } from "@/components/ui/button";
-
+import { GoogleLogin } from "@react-oauth/google";
+// import { useRouter } from "next/navigation";
 type SignUpFormValues = {
   email: string;
   password: string;
@@ -25,10 +26,17 @@ type Errors = {
   password_confirmation?: string[];
 };
 
+type CredentialResponseType = {
+  credential: string;
+  clientId: string;
+  select_by: string;
+};
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const dispatch = useAppDispatch();
+  // const router = useRouter();
   const {
     register,
     setError,
@@ -79,8 +87,61 @@ export default function SignUpForm() {
       setLoading(false);
     }
   };
+  const googleLoginHandler = async (credential: CredentialResponseType) => {
+    setLoading(true);
+    console.log("Google Login");
+    try {
+      const formData = new FormData();
+      formData.append("token", credential.credential);
+      formData.append("provider", "google");
+      const response = await http.googleLogin(`/auth/social`, formData);
+      if (response.status === 200) {
+        toast.success("Signup successful!", {
+          description: "Welcome!",
+        });
+        const { user } = response.data;
+        console.log("user data:", user);
+        dispatch(setToken(response.data.token));
+        dispatch(
+          setUserData({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            status: user.status,
+            profile_status: user.profile_status,
+          })
+        );
+        // const redirectUrl = `/`;
+        // router.push(redirectUrl);
+      }
+    } catch (err) {
+      console.error("Resend code error:", err);
+      toast.error("Failed to login.", {
+        description: "Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <>
+      {/* <!-- Google Login Button --> */}
+      <div>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            googleLoginHandler(credentialResponse as CredentialResponseType);
+            console.log("Success:", credentialResponse);
+          }}
+          onError={() => {
+            console.log("Login Failed");
+          }}
+        />
+      </div>
+
+      {/* <!-- Divider --> */}
+      <div className="mt-6">
+        <p className="flex justify-center">OR</p>
+      </div>
       {step == 1 && (
         <form
           className="mt-6 space-y-6"

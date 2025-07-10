@@ -147,6 +147,39 @@ export const resendcode = async (uri: string, data: FormData) => {
   }
 };
 
+export const googleLogin = async (uri: string, data: FormData) => {
+  try {
+    const response: AxiosResponse<{
+      user: {
+        id: number;
+        name: string;
+        email: string;
+        status: string;
+        profile_status: string | null;
+      };
+      token: string;
+    }> = await http.post(uri, data);
+    if (response.status === 422) {
+      return response;
+    }
+    const apiFormData = new FormData();
+    const user = response.data.user;
+    apiFormData.append("token", response.data.token);
+    apiFormData.append("id", user.id.toString());
+    apiFormData.append("name", user.name);
+    apiFormData.append("email", user.email);
+    apiFormData.append("status", user.status);
+
+    setCookie("userInfo", apiFormData);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 422) {
+      return error.response;
+    }
+    throw error;
+  }
+};
+
 export const fetchDataWithToken = async (uri: string) => {
   try {
     await ensureToken();
@@ -199,6 +232,7 @@ const api = {
   register,
   verifycode,
   resendcode,
+  googleLogin,
   fetchDataWithToken,
   postDataWithToken,
 };
