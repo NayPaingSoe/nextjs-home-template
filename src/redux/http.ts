@@ -1,12 +1,12 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { store } from '../redux/store';
-import { clearToken } from './features/AuthSlice';
-import { useRouter } from 'next/router';
-import { useDispatch } from 'react-redux';
-import { setCookie, getCookie } from '@/utils/cookie';
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import { store } from "../redux/store";
+import { clearToken } from "./features/AuthSlice";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setCookie, getCookie, removeCookie } from "@/utils/cookie";
 
 const http = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api`,
+  baseURL: `${process.env.NEXT_PUBLIC_APP_BASE_URL}`,
 });
 
 http.interceptors.request.use(
@@ -28,8 +28,8 @@ http.interceptors.request.use(
 );
 
 http.interceptors.response.use(
-  response => response,
-  error => {
+  (response) => response,
+  (error) => {
     console.log(error);
     if (error.response && error.response.status === 422) {
       return error.response;
@@ -39,35 +39,93 @@ http.interceptors.response.use(
 );
 
 const ensureToken = async () => {
-  const res = await getCookie('userInfo');
-  const response = res ? JSON.parse(res) as { status: number; data: { userData: { token: string } } } : null;
+  const res = await getCookie("userInfo");
+  const response = res
+    ? (JSON.parse(res) as {
+        status: number;
+        data: { userData: { token: string } };
+      })
+    : null;
   if (response?.status === 200) {
     const userInfo = response.data.userData;
     const token = userInfo.token;
 
     if (!token) {
-      throw new Error('Token not available');
+      throw new Error("Token not available");
     }
     return token;
   } else {
-    throw new Error('Token not available');
+    throw new Error("Token not available");
   }
 };
 
 export const login = async (uri: string, data: FormData) => {
   try {
     const response: AxiosResponse<{
-      admin: { id: string; name: string; email: string };
-      token: string
+      user: { id: string; name: string; email: string; status: string };
+      token: string;
     }> = await http.post(uri, data);
+    if (response.status === 422) {
+      return response;
+    }
     const apiFormData = new FormData();
-    const admin = response.data.admin;
-    apiFormData.append('token', response.data.token);
-    apiFormData.append('id', admin.id);
-    apiFormData.append('name', admin.name);
-    apiFormData.append('email', admin.email);
+    const user = response.data.user;
+    apiFormData.append("token", response.data.token);
+    apiFormData.append("id", user.id);
+    apiFormData.append("name", user.name);
+    apiFormData.append("email", user.email);
+    apiFormData.append("status", user.status);
 
-    setCookie('userInfo', apiFormData);
+    setCookie("userInfo", apiFormData);
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 422) {
+      return error.response;
+    }
+    throw error;
+  }
+};
+export const register = async (uri: string, data: FormData) => {
+  try {
+    const response: AxiosResponse<{
+      user: { id: string; name: string; email: string; status: string };
+      token: string;
+    }> = await http.post(uri, data);
+    if (response.status === 422) {
+      return response;
+    }
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 422) {
+      return error.response;
+    }
+    throw error;
+  }
+};
+export const verifycode = async (uri: string, data: FormData) => {
+  try {
+    const response: AxiosResponse<{
+      user: {
+        id: number;
+        name: string;
+        email: string;
+        status: string;
+        profile_status: string | null;
+      };
+      token: string;
+    }> = await http.post(uri, data);
+    if (response.status === 422) {
+      return response;
+    }
+    const apiFormData = new FormData();
+    const user = response.data.user;
+    apiFormData.append("token", response.data.token);
+    apiFormData.append("id", user.id.toString());
+    apiFormData.append("name", user.name);
+    apiFormData.append("email", user.email);
+    apiFormData.append("status", user.status);
+
+    setCookie("userInfo", apiFormData);
     return response;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 422) {
@@ -111,16 +169,24 @@ export const useLogout = () => {
 
   const logout = async () => {
     try {
-      await http.post('/admin/logout');
+      await http.post("/logout");
       dispatch(clearToken());
-      router.push('/login');
+      await removeCookie("userInfo");
+      router.push("/");
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error("Logout failed", error);
     }
   };
 
   return logout;
 };
 
-const api = { http, login, fetchDataWithToken, postDataWithToken };
+const api = {
+  http,
+  login,
+  register,
+  verifycode,
+  fetchDataWithToken,
+  postDataWithToken,
+};
 export default api;

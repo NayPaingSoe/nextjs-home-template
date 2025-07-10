@@ -7,7 +7,13 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { useForm } from "react-hook-form";
+import http from "@/redux/http";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/redux/hook";
+import { setToken, setUserData } from "@/redux/features/AuthSlice";
+import { Button } from "@/components/ui/button";
 
 type SignUpFormValues = {
   email: string;
@@ -22,8 +28,8 @@ type Errors = {
 
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
-  const [value, setValue] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
   const {
     register,
     setError,
@@ -33,9 +39,50 @@ export default function SignUpForm() {
     reValidateMode: "onChange",
   });
 
-  const onSubmit = (data: SignUpFormValues) => {
-    console.log(data);
-    // setStep(2);
+  const onSubmit: SubmitHandler<SignUpFormValues> = async (data) => {
+    setLoading(true);
+    console.log("Register");
+    try {
+      setEmail(data.email);
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("password_confirmation", data.password_confirmation);
+
+      const response = await http.register("/register", formData);
+
+      if (response.status === 422 && response.data.errors) {
+        console.log("true", true);
+        const apiErrors: Errors = response.data.errors;
+        (Object.keys(apiErrors) as Array<keyof Errors>).forEach((key) => {
+          const message = apiErrors[key]?.[0];
+          if (message) {
+            setError(key, { type: "manual", message });
+          }
+        });
+        toast.error("Register failed.", {
+          description: apiErrors.password
+            ? apiErrors.password[0]
+            : apiErrors.email
+            ? apiErrors.email[0]
+            : "Please check your credentials and try again.",
+        });
+      } else if (response.status === 200) {
+        const { user } = response.data;
+        console.log("user data:", user);
+        toast.success("Code sent to your email!", {
+          description: "Please check your email!",
+        });
+        setStep(2);
+      }
+    } catch (err) {
+      console.error("Register error:", err);
+      toast.error("Send code fail!.", {
+        description: "Please check your internet connetion!",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <>
@@ -109,36 +156,76 @@ export default function SignUpForm() {
               />
             </div>
           </div>
-          <button
+          <Button
+            disabled={loading}
             type="submit"
-            className="w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            className="w-full flex justify-center py-6 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
-            Send Code
-          </button>
+            {loading ? "Sending Code..." : "Send Code"}
+          </Button>
         </form>
       )}
 
-      {step == 2 && (
-        <VerifyCode
-          setStep={setStep}
-          value={value}
-          setValue={setValue}
-        ></VerifyCode>
-      )}
+      {step == 2 && <VerifyCode email={email}></VerifyCode>}
     </>
   );
 }
 
-interface VerifyCodeProps {
-  setStep: (step: number) => void;
-  value: string;
-  setValue: (value: string) => void;
-}
-function VerifyCode(props: VerifyCodeProps) {
+function VerifyCode({ email }: { email: string }) {
+  const [value, setValue] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const registerHandler = async () => {
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("code", value);
+
+      const response = await http.verifycode("/verify-code", formData);
+
+      if (response.status === 422) {
+        console.log("true", response.data.message);
+        const message = response.data.message;
+        setError(response.data.message);
+
+        toast.error(message);
+      } else if (response.status === 200) {
+        const { user } = response.data;
+        console.log("user data:", user);
+        dispatch(setToken(response.data.token));
+        dispatch(
+          setUserData({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            status: user.status,
+            profile_status: user.profile_status,
+          })
+        );
+
+        toast.success("Register successful!", {
+          description: "Welcome!",
+        });
+        // const redirectUrl = `/`;
+        // router.push(redirectUrl);
+      }
+    } catch (err) {
+      console.error("Register error:", err);
+      toast.error(err.response.data.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="my-6 ">
-      <div className="flex items-center justify-center">
-        <InputOTP maxLength={6} value={props.value} onChange={props.setValue}>
+      <p className="text-center text-sm text-gray-500 my-2">
+        Please enter the one-time password sent to your email.
+      </p>
+      <div className="flex items-center justify-center my-4">
+        <InputOTP maxLength={6} value={value} onChange={setValue}>
           <InputOTPGroup>
             <InputOTPSlot index={0} className="p-5" />
             <InputOTPSeparator />
@@ -160,16 +247,15 @@ function VerifyCode(props: VerifyCodeProps) {
         </InputOTP>
       </div>
 
-      <p className="text-center text-sm text-gray-500 my-2">
-        Please enter the one-time password sent to your phone. {props.value}
-      </p>
-      <button
+      <p className="text-center text-sm text-red-500 my-2">{error}</p>
+      <Button
+        disabled={loading}
         type="submit"
-        onClick={() => props.setStep(1)}
-        className="mt-6 w-full flex justify-center py-4 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        onClick={registerHandler}
+        className="mt-6 w-full flex justify-center py-6 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
       >
-        Register Now
-      </button>
+        {loading ? "Verifing Code " : "Verify Code"}
+      </Button>
     </div>
   );
 }
